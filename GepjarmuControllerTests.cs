@@ -79,6 +79,63 @@ namespace CegautokAP.Tests
 
         }
 
+        [TestMethod]
+        public void GetByIdTest()
+        {
+            int existingid = 1;
+            int nonExistingId = 999;
+
+            var result = _controller.GetGepjarmuById(existingid);
+            var nonexistingResult = _controller.GetGepjarmuById(nonExistingId);
+
+            Assert.IsNotNull(nonexistingResult);
+            Assert.IsNotNull(result);
+
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            Assert.IsInstanceOfType(nonexistingResult, typeof(BadRequestObjectResult));
+
+            var okResult = (OkObjectResult)result;
+            var badRequestResult = (BadRequestObjectResult)nonexistingResult;
+            Assert.IsNotNull(badRequestResult);
+            Assert.IsNotNull(okResult);
+
+            Assert.IsInstanceOfType(okResult.Value, typeof(Gepjarmu));
+
+            Gepjarmu gepjarmu = (Gepjarmu)okResult.Value;
+            Assert.IsNotNull(gepjarmu);
+            Assert.AreEqual("ABC-123", gepjarmu.Rendszam);
+            Assert.AreEqual("Nincs ilyen gépjármű", badRequestResult.Value);
+        }
+
+        [TestMethod]
+        public void AddNewGepjarmuTest()
+        {
+            var newGepjarmu = new Gepjarmu()
+            {
+                Id = 3,
+                Rendszam = "DEF-456",
+                Marka = "Ford",
+                Tipus = "Hatchback",
+                Ulesek = 5
+            };
+            var result = _controller.AddNewGepjarmu(newGepjarmu);
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(ObjectResult));
+            var okresult = result as ObjectResult;
+            Assert.IsNotNull(okresult);
+            Assert.AreEqual(200, okresult.StatusCode);
+            Assert.AreEqual("Sikeres rögzítés", okresult.Value);
+
+            // hibás adatokkal
+            Gepjarmu invalidGepjarmu = null;
+            var resultHibas = _controller.AddNewGepjarmu(invalidGepjarmu);
+            Assert.IsNotNull(resultHibas);
+            Assert.IsInstanceOfType(resultHibas, typeof(BadRequestObjectResult));
+            var badRequestResult = (BadRequestObjectResult)resultHibas;
+            Assert.IsNotNull(badRequestResult);
+            Assert.IsInstanceOfType(badRequestResult.Value, typeof(string));
+            Assert.IsTrue(((string)badRequestResult.Value).StartsWith("Hiba történt a felvétel során:"));
+        }
 
         [TestMethod]
         public void GetAllGepjarmus_ReturnsOk_WhenDatabaseIsEmpty()
@@ -211,7 +268,7 @@ namespace CegautokAP.Tests
 
             Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
             var bad = (BadRequestObjectResult)result;
-            Assert.AreEqual("Nincs ilyen gépjűrmű!", bad.Value);
+            Assert.AreEqual("Nincs ilyen gépjármű!", bad.Value);
         }
 
 
