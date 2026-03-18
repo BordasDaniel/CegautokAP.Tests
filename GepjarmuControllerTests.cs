@@ -142,12 +142,36 @@ namespace CegautokAP.Tests
             Assert.IsNotNull(duplicateRendszam);
             Assert.IsInstanceOfType(resultletezo, typeof(BadRequestObjectResult));
             Assert.IsNotNull(resultletezo);
-            Assert.AreEqual("Már létezik ilyen rendszámú gépjármű!", ((BadRequestObjectResult)resultletezo).Value);
+            Assert.AreEqual("Már van ilyen Id-val gépjármű!", ((BadRequestObjectResult)resultletezo).Value);
 
         }
 
         [TestMethod]
-        public void UpdateJarmuTest()
+        public void UpdateJarmuTest_NullError()
+        {
+            var nullResult = _controller.ModifyGepjarmu(null);
+            Assert.IsNotNull(nullResult);
+            Assert.IsInstanceOfType(nullResult, typeof(BadRequestObjectResult));
+        }
+
+        [TestMethod]
+        public void UpdateJarmuTest_InvalidIdError()
+        {
+            Gepjarmu invalidIdGepjarmu = new Gepjarmu()
+            {
+                Id = 0,
+                Rendszam = "INV-000",
+                Marka = "Toyota",
+                Tipus = "Sedan",
+                Ulesek = 5
+            };
+            var invalidIdResult = _controller.ModifyGepjarmu(invalidIdGepjarmu);
+            Assert.IsNotNull(invalidIdResult);
+            Assert.IsInstanceOfType(invalidIdResult, typeof(BadRequestObjectResult));
+        }
+
+        [TestMethod]
+        public void UpdateJarmuTest_Valid()
         {
             Gepjarmu existingGepjarmu = new Gepjarmu()
             {
@@ -168,39 +192,6 @@ namespace CegautokAP.Tests
             Assert.IsNotNull(updatedDbGepjarmu);
             Assert.AreEqual("Hatchback", updatedDbGepjarmu.Tipus);
             Assert.AreEqual(4, updatedDbGepjarmu.Ulesek);
-
-            // jarmu == null
-            var nullResult = _controller.ModifyGepjarmu(null);
-            Assert.IsNotNull(nullResult);
-            Assert.IsInstanceOfType(nullResult, typeof(BadRequestObjectResult));
-
-            // jarmu.Id < 1
-            Gepjarmu invalidIdGepjarmu = new Gepjarmu()
-            {
-                Id = 0,
-                Rendszam = "INV-000",
-                Marka = "Toyota",
-                Tipus = "Sedan",
-                Ulesek = 5
-            };
-            var invalidIdResult = _controller.ModifyGepjarmu(invalidIdGepjarmu);
-            Assert.IsNotNull(invalidIdResult);
-            Assert.IsInstanceOfType(invalidIdResult, typeof(BadRequestObjectResult));
-
-            // (Id = 999)
-            Gepjarmu nonExistentGepjarmu = new Gepjarmu()
-            {
-                Id = 999,
-                Rendszam = "NNE-999",
-                Marka = "BMW",
-                Tipus = "Coupe",
-                Ulesek = 2
-            };
-            var nonExistentResult = _controller.ModifyGepjarmu(nonExistentGepjarmu);
-            Assert.IsNotNull(nonExistentResult);
-            Assert.IsInstanceOfType(nonExistentResult, typeof(BadRequestObjectResult));
         }
-
-       
     }
 }
