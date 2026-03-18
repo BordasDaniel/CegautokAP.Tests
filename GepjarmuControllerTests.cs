@@ -146,6 +146,61 @@ namespace CegautokAP.Tests
 
         }
 
+        [TestMethod]
+        public void UpdateJarmuTest()
+        {
+            Gepjarmu existingGepjarmu = new Gepjarmu()
+            {
+                Id = 1,
+                Rendszam = "ABC-123",
+                Marka = "Toyota",
+                Tipus = "Hatchback",
+                Ulesek = 4           
+            };
+
+            var result = _controller.ModifyGepjarmu(existingGepjarmu);
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = (OkObjectResult)result;
+            Assert.IsNotNull(okResult.Value);
+
+            var updatedDbGepjarmu = _context.Gepjarmus.Find(1);
+            Assert.IsNotNull(updatedDbGepjarmu);
+            Assert.AreEqual("Hatchback", updatedDbGepjarmu.Tipus);
+            Assert.AreEqual(4, updatedDbGepjarmu.Ulesek);
+
+            // jarmu == null
+            var nullResult = _controller.ModifyGepjarmu(null);
+            Assert.IsNotNull(nullResult);
+            Assert.IsInstanceOfType(nullResult, typeof(BadRequestObjectResult));
+
+            // jarmu.Id < 1
+            Gepjarmu invalidIdGepjarmu = new Gepjarmu()
+            {
+                Id = 0,
+                Rendszam = "INV-000",
+                Marka = "Toyota",
+                Tipus = "Sedan",
+                Ulesek = 5
+            };
+            var invalidIdResult = _controller.ModifyGepjarmu(invalidIdGepjarmu);
+            Assert.IsNotNull(invalidIdResult);
+            Assert.IsInstanceOfType(invalidIdResult, typeof(BadRequestObjectResult));
+
+            // (Id = 999)
+            Gepjarmu nonExistentGepjarmu = new Gepjarmu()
+            {
+                Id = 999,
+                Rendszam = "NNE-999",
+                Marka = "BMW",
+                Tipus = "Coupe",
+                Ulesek = 2
+            };
+            var nonExistentResult = _controller.ModifyGepjarmu(nonExistentGepjarmu);
+            Assert.IsNotNull(nonExistentResult);
+            Assert.IsInstanceOfType(nonExistentResult, typeof(BadRequestObjectResult));
+        }
+
        
     }
 }
