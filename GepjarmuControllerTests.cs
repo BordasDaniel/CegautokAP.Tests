@@ -203,7 +203,7 @@ namespace CegautokAP.Tests
             Assert.IsInstanceOfType(result, typeof(OkObjectResult));
             var okResult = (OkObjectResult)result;
             Assert.IsNotNull(okResult.Value);
-            Assert.AreEqual("Sikeres törlés", okResult.Value);
+            Assert.AreEqual("Sikeres törlés!", okResult.Value);
             var deletedGepjarmu = _context.Gepjarmus.Find(existingId);
             Assert.IsNull(deletedGepjarmu);
         }
