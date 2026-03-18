@@ -9,12 +9,45 @@ namespace CegautokAP.Tests
     [TestClass]
     public class GepjarmuControllerTests
     {
+        FlottaContext _context;
+        GepjarmuController _controller;
+
         private FlottaContext CreateInMemoryContext(string dbName)
         {
             var options = new DbContextOptionsBuilder<FlottaContext>()
-                .UseInMemoryDatabase(databaseName: dbName)
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
             return new FlottaContext(options);
+        }
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _context = CreateInMemoryContext(nameof(TestInitialize));
+            _controller = new GepjarmuController(_context);
+
+            var gepjarmu1 = new Gepjarmu
+            {
+                Id = 1,
+                Rendszam = "ABC-123",
+                Marka = "Toyota",
+                Tipus = "Sedan",
+                Ulesek = 5
+            };
+
+            var gepjarmu2 = new Gepjarmu
+            {
+                Id = 2,
+                Rendszam = "XYZ-789",
+                Marka = "Honda",
+                Tipus = "SUV",
+                Ulesek = 7
+            };
+
+            _context.Gepjarmus.AddRange(gepjarmu1, gepjarmu2);
+            _context.SaveChanges();
+            _context.ChangeTracker.Clear();
+            _controller = new GepjarmuController(_context);
         }
 
         private static Gepjarmu CreateSampleGepjarmu(int id = 1) => new Gepjarmu
@@ -25,6 +58,26 @@ namespace CegautokAP.Tests
             Tipus = "Sedan",
             Ulesek = 5
         };
+
+        [TestMethod]
+        public void GetAllGepjarmusTest()
+        {
+            //Arrange
+            //Act
+            //Assert
+
+            var result = _controller.GetAllGepjarmus();
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = (OkObjectResult)result;
+            Assert.IsNotNull(okResult);
+            Assert.IsInstanceOfType(okResult.Value, typeof(List<Gepjarmu>));
+            List<Gepjarmu> gepjarmus = (List<Gepjarmu>)okResult.Value;
+            Assert.IsNotNull(gepjarmus);
+            Assert.AreEqual(2, gepjarmus.Count);
+            Assert.AreEqual("ABC-123", gepjarmus[0].Rendszam);
+
+        }
 
 
         [TestMethod]
