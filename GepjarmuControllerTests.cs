@@ -193,5 +193,19 @@ namespace CegautokAP.Tests
             Assert.AreEqual("Hatchback", updatedDbGepjarmu.Tipus);
             Assert.AreEqual(4, updatedDbGepjarmu.Ulesek);
         }
+
+        [TestMethod]
+        public void DeleteJarmuTest_Valid()
+        {
+            int existingId = 1;
+            var result = _controller.DeleteGepjarmu(existingId);
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            var okResult = (OkObjectResult)result;
+            Assert.IsNotNull(okResult.Value);
+            Assert.AreEqual("Sikeres törlés", okResult.Value);
+            var deletedGepjarmu = _context.Gepjarmus.Find(existingId);
+            Assert.IsNull(deletedGepjarmu);
+        }
     }
 }
